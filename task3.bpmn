@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_Fleet"
+  targetNamespace="http://example.com/fleet">
+
+  <bpmn:process id="Process_FleetAccounting" name="Учёт автопарка" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Operator" name="Диспетчер / оператор">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Enter</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Correct</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ViewReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_System" name="Информационная система">
+        <bpmn:flowNodeRef>Task_Validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Correct</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Error</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Save</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Update</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_1" name="Начало"/>
+    <bpmn:userTask id="Task_Enter" name="Ввести данные автомобиля"/>
+    <bpmn:serviceTask id="Task_Validate" name="Проверить корректность данных"/>
+    <bpmn:exclusiveGateway id="Gateway_Correct" name="Данные корректны?"/>
+    <bpmn:serviceTask id="Task_Error" name="Показать ошибки"/>
+    <bpmn:userTask id="Task_Correct" name="Исправить данные"/>
+    <bpmn:serviceTask id="Task_Save" name="Сохранить карточку автомобиля"/>
+    <bpmn:serviceTask id="Task_Update" name="Обновить сведения об автопарке"/>
+    <bpmn:userTask id="Task_ViewReport" name="Просмотреть сведения и отчёт по автопарку"/>
+    <bpmn:endEvent id="EndEvent_1" name="Учёт автомобиля завершён"/>
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_Enter"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Enter" targetRef="Task_Validate"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_Validate" targetRef="Gateway_Correct"/>
+    <bpmn:sequenceFlow id="Flow_No" name="Нет" sourceRef="Gateway_Correct" targetRef="Task_Error"/>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Error" targetRef="Task_Correct"/>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_Correct" targetRef="Task_Validate"/>
+    <bpmn:sequenceFlow id="Flow_Yes" name="Да" sourceRef="Gateway_Correct" targetRef="Task_Save"/>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_Save" targetRef="Task_Update"/>
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_Update" targetRef="Task_ViewReport"/>
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_ViewReport" targetRef="EndEvent_1"/>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_FleetAccounting">
+      <bpmndi:BPMNShape id="Lane_Operator_di" bpmnElement="Lane_Operator" isHorizontal="true">
+        <dc:Bounds x="80" y="80" width="1540" height="300"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="80" y="380" width="1540" height="300"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="130" y="200" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Enter_di" bpmnElement="Task_Enter">
+        <dc:Bounds x="210" y="170" width="180" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Correct_di" bpmnElement="Task_Correct">
+        <dc:Bounds x="500" y="245" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ViewReport_di" bpmnElement="Task_ViewReport">
+        <dc:Bounds x="1230" y="170" width="210" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="1510" y="200" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Validate_di" bpmnElement="Task_Validate">
+        <dc:Bounds x="430" y="455" width="190" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Correct_di" bpmnElement="Gateway_Correct" isMarkerVisible="true">
+        <dc:Bounds x="700" y="475" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Error_di" bpmnElement="Task_Error">
+        <dc:Bounds x="600" y="570" width="180" height="75"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Save_di" bpmnElement="Task_Save">
+        <dc:Bounds x="820" y="455" width="190" height="90"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Update_di" bpmnElement="Task_Update">
+        <dc:Bounds x="1050" y="455" width="190" height="90"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="166" y="218"/><di:waypoint x="210" y="215"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="300" y="260"/><di:waypoint x="300" y="430"/><di:waypoint x="525" y="430"/><di:waypoint x="525" y="455"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="620" y="500"/><di:waypoint x="700" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_No_di" bpmnElement="Flow_No">
+        <di:waypoint x="725" y="525"/><di:waypoint x="725" y="570"/><di:waypoint x="690" y="570"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="600" y="607"/><di:waypoint x="590" y="607"/><di:waypoint x="590" y="325"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="500" y="285"/><di:waypoint x="525" y="285"/><di:waypoint x="525" y="455"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Yes_di" bpmnElement="Flow_Yes">
+        <di:waypoint x="750" y="500"/><di:waypoint x="820" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="1010" y="500"/><di:waypoint x="1050" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="1240" y="500"/><di:waypoint x="1320" y="500"/><di:waypoint x="1320" y="260"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="1440" y="215"/><di:waypoint x="1510" y="218"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
