@@ -1,123 +1,280 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-  id="Definitions_Fleet"
-  targetNamespace="http://example.com/fleet">
-
-  <bpmn:process id="Process_FleetAccounting" name="Учёт автопарка" isExecutable="false">
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_FleetShort" targetNamespace="http://example.com/fleet-accounting-short" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
+  <bpmn:process id="Process_FleetAccountingShort" name="Учёт автопарка" isExecutable="false">
     <bpmn:laneSet id="LaneSet_1">
-      <bpmn:lane id="Lane_Operator" name="Диспетчер / оператор">
-        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_Enter</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_Correct</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_ViewReport</bpmn:flowNodeRef>
+      <bpmn:lane id="Lane_System" name="ИС / Бухгалтерия">
+        <bpmn:flowNodeRef>Task_UpdateData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GenerateReport</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_System" name="Информационная система">
-        <bpmn:flowNodeRef>Task_Validate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Gateway_Correct</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_Error</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_Save</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_Update</bpmn:flowNodeRef>
+      <bpmn:lane id="Lane_Driver" name="Водитель">
+        <bpmn:flowNodeRef>Task_ReceiveVehicle</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ExecuteTrip</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReturnVehicle</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Mechanic" name="Механик">
+        <bpmn:flowNodeRef>Task_PreTripInspection</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RepairReplace</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PostTripInspection</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ScheduleMaintenance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_TechOK</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_MaintNeeded</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Dispatcher" name="Диспетчер">
+        <bpmn:flowNodeRef>Task_RegisterRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SelectVehicleDriver</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CloseTrip</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-
-    <bpmn:startEvent id="StartEvent_1" name="Начало"/>
-    <bpmn:userTask id="Task_Enter" name="Ввести данные автомобиля"/>
-    <bpmn:serviceTask id="Task_Validate" name="Проверить корректность данных"/>
-    <bpmn:exclusiveGateway id="Gateway_Correct" name="Данные корректны?"/>
-    <bpmn:serviceTask id="Task_Error" name="Показать ошибки"/>
-    <bpmn:userTask id="Task_Correct" name="Исправить данные"/>
-    <bpmn:serviceTask id="Task_Save" name="Сохранить карточку автомобиля"/>
-    <bpmn:serviceTask id="Task_Update" name="Обновить сведения об автопарке"/>
-    <bpmn:userTask id="Task_ViewReport" name="Просмотреть сведения и отчёт по автопарку"/>
-    <bpmn:endEvent id="EndEvent_1" name="Учёт автомобиля завершён"/>
-
-    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_Enter"/>
-    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Enter" targetRef="Task_Validate"/>
-    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_Validate" targetRef="Gateway_Correct"/>
-    <bpmn:sequenceFlow id="Flow_No" name="Нет" sourceRef="Gateway_Correct" targetRef="Task_Error"/>
-    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Error" targetRef="Task_Correct"/>
-    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_Correct" targetRef="Task_Validate"/>
-    <bpmn:sequenceFlow id="Flow_Yes" name="Да" sourceRef="Gateway_Correct" targetRef="Task_Save"/>
-    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_Save" targetRef="Task_Update"/>
-    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_Update" targetRef="Task_ViewReport"/>
-    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_ViewReport" targetRef="EndEvent_1"/>
+    <bpmn:startEvent id="StartEvent_1" name="Поступила заявка на автомобиль">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_RegisterRequest" name="Зарегистрировать заявку">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_SelectVehicleDriver" name="Выбрать автомобиль из автопарка">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_PreTripInspection" name="Провести предрейсовый осмотр">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_TechOK" name="ТС исправно?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_RepairReplace" name="Направить ТС на ремонт / выбрать другое ТС">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ReceiveVehicle" name="Выдать автомобиль и путевой лист">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:task id="Task_ExecuteTrip" name="Выполнить рейс">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:userTask id="Task_ReturnVehicle" name="Зафиксировать пробег и расход топлива">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_PostTripInspection" name="Провести послерейсовый осмотр">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_MaintNeeded" name="Требуется ТО/ремонт?">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_ScheduleMaintenance" name="Запланировать ТО / ремонт">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_UpdateData" name="Обновить карточку автомобиля">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_CloseTrip" name="Закрыть путевой лист">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_GenerateReport" name="Сформировать отчёт по автопарку">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_1" name="Данные автопарка обновлены">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_RegisterRequest" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_RegisterRequest" targetRef="Task_SelectVehicleDriver" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SelectVehicleDriver" targetRef="Task_PreTripInspection" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_PreTripInspection" targetRef="Gateway_TechOK" />
+    <bpmn:sequenceFlow id="Flow_5" name="Да" sourceRef="Gateway_TechOK" targetRef="Task_ReceiveVehicle" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_RepairReplace" targetRef="Task_SelectVehicleDriver" />
+    <bpmn:sequenceFlow id="Flow_7" name="Нет" sourceRef="Gateway_TechOK" targetRef="Task_RepairReplace" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_ReceiveVehicle" targetRef="Task_ExecuteTrip" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_ExecuteTrip" targetRef="Task_ReturnVehicle" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_ReturnVehicle" targetRef="Task_PostTripInspection" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_PostTripInspection" targetRef="Gateway_MaintNeeded" />
+    <bpmn:sequenceFlow id="Flow_12" name="Да" sourceRef="Gateway_MaintNeeded" targetRef="Task_ScheduleMaintenance" />
+    <bpmn:sequenceFlow id="Flow_13" name="Нет" sourceRef="Gateway_MaintNeeded" targetRef="Task_UpdateData" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_ScheduleMaintenance" targetRef="Task_UpdateData" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Task_UpdateData" targetRef="Task_CloseTrip" />
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Task_CloseTrip" targetRef="Task_GenerateReport" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Task_GenerateReport" targetRef="EndEvent_1" />
   </bpmn:process>
-
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_FleetAccounting">
-      <bpmndi:BPMNShape id="Lane_Operator_di" bpmnElement="Lane_Operator" isHorizontal="true">
-        <dc:Bounds x="80" y="80" width="1540" height="300"/>
-      </bpmndi:BPMNShape>
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_FleetAccountingShort">
       <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
-        <dc:Bounds x="80" y="380" width="1540" height="300"/>
+        <dc:Bounds x="160" y="550" width="2840" height="160" />
       </bpmndi:BPMNShape>
-
+      <bpmndi:BPMNShape id="Lane_Driver_di" bpmnElement="Lane_Driver" isHorizontal="true">
+        <dc:Bounds x="160" y="400" width="2840" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Mechanic_di" bpmnElement="Lane_Mechanic" isHorizontal="true">
+        <dc:Bounds x="160" y="230" width="2840" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Dispatcher_di" bpmnElement="Lane_Dispatcher" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2840" height="150" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
-        <dc:Bounds x="130" y="200" width="36" height="36"/>
+        <dc:Bounds x="200" y="135" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="189" y="175" width="62" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_Enter_di" bpmnElement="Task_Enter">
-        <dc:Bounds x="210" y="170" width="180" height="90"/>
+      <bpmndi:BPMNShape id="Task_RegisterRequest_di" bpmnElement="Task_RegisterRequest">
+        <dc:Bounds x="290" y="113" width="150" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_Correct_di" bpmnElement="Task_Correct">
-        <dc:Bounds x="500" y="245" width="180" height="80"/>
+      <bpmndi:BPMNShape id="Task_SelectVehicleDriver_di" bpmnElement="Task_SelectVehicleDriver">
+        <dc:Bounds x="500" y="113" width="190" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_ViewReport_di" bpmnElement="Task_ViewReport">
-        <dc:Bounds x="1230" y="170" width="210" height="90"/>
+      <bpmndi:BPMNShape id="Task_PreTripInspection_di" bpmnElement="Task_PreTripInspection">
+        <dc:Bounds x="780" y="275" width="180" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TechOK_di" bpmnElement="Gateway_TechOK" isMarkerVisible="true">
+        <dc:Bounds x="1020" y="290" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1009" y="340" width="72" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RepairReplace_di" bpmnElement="Task_RepairReplace">
+        <dc:Bounds x="1130" y="265" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveVehicle_di" bpmnElement="Task_ReceiveVehicle">
+        <dc:Bounds x="1130" y="435" width="180" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExecuteTrip_di" bpmnElement="Task_ExecuteTrip">
+        <dc:Bounds x="1370" y="435" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReturnVehicle_di" bpmnElement="Task_ReturnVehicle">
+        <dc:Bounds x="1580" y="435" width="180" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PostTripInspection_di" bpmnElement="Task_PostTripInspection">
+        <dc:Bounds x="1830" y="275" width="180" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_MaintNeeded_di" bpmnElement="Gateway_MaintNeeded" isMarkerVisible="true">
+        <dc:Bounds x="2080" y="290" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2075" y="340" width="61" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ScheduleMaintenance_di" bpmnElement="Task_ScheduleMaintenance">
+        <dc:Bounds x="2200" y="275" width="180" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UpdateData_di" bpmnElement="Task_UpdateData">
+        <dc:Bounds x="2200" y="590" width="220" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CloseTrip_di" bpmnElement="Task_CloseTrip">
+        <dc:Bounds x="2480" y="113" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GenerateReport_di" bpmnElement="Task_GenerateReport">
+        <dc:Bounds x="2480" y="590" width="170" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
-        <dc:Bounds x="1510" y="200" width="36" height="36"/>
+        <dc:Bounds x="2740" y="612" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2732" y="650" width="57" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Task_Validate_di" bpmnElement="Task_Validate">
-        <dc:Bounds x="430" y="455" width="190" height="90"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_Correct_di" bpmnElement="Gateway_Correct" isMarkerVisible="true">
-        <dc:Bounds x="700" y="475" width="50" height="50"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_Error_di" bpmnElement="Task_Error">
-        <dc:Bounds x="600" y="570" width="180" height="75"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_Save_di" bpmnElement="Task_Save">
-        <dc:Bounds x="820" y="455" width="190" height="90"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_Update_di" bpmnElement="Task_Update">
-        <dc:Bounds x="1050" y="455" width="190" height="90"/>
-      </bpmndi:BPMNShape>
-
       <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
-        <di:waypoint x="166" y="218"/><di:waypoint x="210" y="215"/>
+        <di:waypoint x="236" y="153" />
+        <di:waypoint x="290" y="153" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
-        <di:waypoint x="300" y="260"/><di:waypoint x="300" y="430"/><di:waypoint x="525" y="430"/><di:waypoint x="525" y="455"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
-        <di:waypoint x="620" y="500"/><di:waypoint x="700" y="500"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_No_di" bpmnElement="Flow_No">
-        <di:waypoint x="725" y="525"/><di:waypoint x="725" y="570"/><di:waypoint x="690" y="570"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
-        <di:waypoint x="600" y="607"/><di:waypoint x="590" y="607"/><di:waypoint x="590" y="325"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
-        <di:waypoint x="500" y="285"/><di:waypoint x="525" y="285"/><di:waypoint x="525" y="455"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Yes_di" bpmnElement="Flow_Yes">
-        <di:waypoint x="750" y="500"/><di:waypoint x="820" y="500"/>
+        <di:waypoint x="440" y="153" />
+        <di:waypoint x="500" y="153" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
-        <di:waypoint x="1010" y="500"/><di:waypoint x="1050" y="500"/>
+        <di:waypoint x="1130" y="305" />
+        <di:waypoint x="1095" y="305" />
+        <di:waypoint x="1095" y="90" />
+        <di:waypoint x="595" y="90" />
+        <di:waypoint x="595" y="113" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="690" y="153" />
+        <di:waypoint x="735" y="153" />
+        <di:waypoint x="735" y="315" />
+        <di:waypoint x="780" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="960" y="315" />
+        <di:waypoint x="1020" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="1045" y="340" />
+        <di:waypoint x="1045" y="475" />
+        <di:waypoint x="1130" y="475" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1058" y="400" width="14" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
-        <di:waypoint x="1240" y="500"/><di:waypoint x="1320" y="500"/><di:waypoint x="1320" y="260"/>
+        <di:waypoint x="1070" y="315" />
+        <di:waypoint x="1130" y="305" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1083" y="290" width="19" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
-        <di:waypoint x="1440" y="215"/><di:waypoint x="1510" y="218"/>
+        <di:waypoint x="1310" y="475" />
+        <di:waypoint x="1370" y="475" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="1520" y="475" />
+        <di:waypoint x="1580" y="475" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="1760" y="475" />
+        <di:waypoint x="1795" y="475" />
+        <di:waypoint x="1795" y="315" />
+        <di:waypoint x="1830" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="2010" y="315" />
+        <di:waypoint x="2080" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="2130" y="315" />
+        <di:waypoint x="2200" y="315" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2153" y="295" width="14" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="2105" y="340" />
+        <di:waypoint x="2105" y="630" />
+        <di:waypoint x="2200" y="630" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2118" y="480" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="2290" y="355" />
+        <di:waypoint x="2290" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="2420" y="630" />
+        <di:waypoint x="2450" y="630" />
+        <di:waypoint x="2450" y="153" />
+        <di:waypoint x="2480" y="153" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
+        <di:waypoint x="2565" y="193" />
+        <di:waypoint x="2565" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <di:waypoint x="2650" y="630" />
+        <di:waypoint x="2740" y="630" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
